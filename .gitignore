@@ -1,0 +1,17 @@
+# Claude credentials & session state — NEVER commit
+.claude/
+**/.claude/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Container artifacts
+*.tar
+*.oci
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/settings.json
