@@ -13,4 +13,6 @@ RUN dnf install -y --allowerasing \
     shadow-utils \
     sudo \
     procps-ng \
+    which \
+    findutils \
     && dnf clean all
