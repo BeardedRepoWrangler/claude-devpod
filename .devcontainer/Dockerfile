@@ -16,3 +16,8 @@ RUN dnf install -y --allowerasing \
     which \
     findutils \
     && dnf clean all
+
+# Node.js v20 via NodeSource RPM
+RUN curl -fsSL https://rpm.nodesource.com/setup_20.x | bash - && \
+    dnf install -y nodejs && \
+    dnf clean all
