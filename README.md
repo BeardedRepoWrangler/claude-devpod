@@ -39,6 +39,7 @@ Claude Code inherits your existing Windows session via a read-write bind mount o
 - `~/.claude` is bind-mounted at **runtime only** — it is never copied into the image or committed to git
 - `.gitignore` explicitly blocks `.claude/` and `**/.claude/` from ever being staged
 - The Dockerfile contains no secrets or hardcoded credentials
+- The container runs with `--privileged` — required for Podman-in-Podman (nested container support via fuse-overlayfs); be aware of this when using the container in sensitive environments
 
 ## Verification
 
