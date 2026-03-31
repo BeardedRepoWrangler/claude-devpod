@@ -21,3 +21,8 @@ RUN dnf install -y --allowerasing \
 RUN curl -fsSL https://rpm.nodesource.com/setup_20.x | bash - && \
     dnf install -y nodejs && \
     dnf clean all
+
+# Python 3 + pip + uv
+RUN dnf install -y python3 python3-pip && \
+    dnf clean all && \
+    pip3 install --no-cache-dir uv
