@@ -17,8 +17,9 @@
 secrets/
 credentials/
 
-# Sub-projects — kept out of top-level repo entirely
-container_in_container/
+# Sub-projects — kept out of top-level repo, except demo
+container_in_container/*/
+!container_in_container/demo/
 
 # Container artifacts
 *.tar
