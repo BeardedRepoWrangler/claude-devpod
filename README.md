@@ -29,6 +29,36 @@ Claude Code inherits your existing Windows session via a read-write bind mount o
 3. VS Code builds the image and runs `postCreate.sh` (installs Claude Code, configures git and Podman)
 4. Open a terminal inside the container and run `claude` to start
 
+### Environment variables
+
+A `.env.example` file at the repo root lists all available `DEVPOD_*` variables with their defaults.
+On first devcontainer open VS Code automatically copies it to `.env` — no manual action required.
+
+To customise (e.g., change the demo port or base image), edit `.env` before reopening the container.
+
+> **Note:** `DEVPOD_BASE_IMAGE` is read from the **host shell environment** at build time (via `${localEnv:DEVPOD_BASE_IMAGE}` in devcontainer.json), not from `.env`. To override the base image, set `DEVPOD_BASE_IMAGE` in your shell before opening the devcontainer. All other `DEVPOD_*` variables are injected from `.env` at runtime.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DEVPOD_BASE_IMAGE` | `registry.access.redhat.com/ubi9/ubi:9.4` | Devcontainer base image (host env, build time) |
+| `DEVPOD_PROJECT_NAME` | `claude-devpod` | Project name inside the container |
+| `DEVPOD_PROJECT_PATH` | `/workspaces/claude-devpod` | Project path inside the container |
+| `DEVPOD_DEMO_PORT` | `8080` | Host port forwarded to the demo-svc container |
+
+### Opening the workspace
+
+Open `claude-devpod.code-workspace` instead of the folder directly — this gives you a multi-folder
+workspace with the parent repo and `demo-svc` as separate Explorer roots, plus pre-configured tasks.
+
+**File → Open Workspace from File…** → select `claude-devpod.code-workspace`
+
+To launch the demo service, use the VS Code task runner (`Ctrl+Shift+P` → **Tasks: Run Task**):
+
+- **demo-svc: Run** — builds the image on first use (skips build if image exists), then starts the container
+- **demo-svc: Rebuild & Run** — always rebuilds; use after changing `app.py`, templates, or the Dockerfile
+
+The dashboard is available at `http://localhost:8080` (or the port set in `DEVPOD_DEMO_PORT`).
+
 ### Use as a template for another project
 
 1. Copy the `.devcontainer/` folder into your project root
