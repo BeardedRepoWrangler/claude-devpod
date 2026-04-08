@@ -8,7 +8,7 @@ This is a living document. Update it whenever major architectural or process dec
 
 - **Parent repo** lives at `/workspaces/<project-name>/`. Do not store sub-project code, configs, or documentation here.
 - **Sub-projects** go in `container_in_container/<sub-project>/`. Each sub-project is a standalone git repo managed independently.
-- Sub-project names and details must **never** be committed to the top-level repo.
+- Sub-project names and details must **never** be committed to the top-level repo, with one exception: `container_in_container/demo/` is permanently tracked so users have a runnable example out of the box.
 
 ---
 

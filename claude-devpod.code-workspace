@@ -1,0 +1,37 @@
+{
+  "folders": [
+    {
+      "name": "claude-devpod",
+      "path": "."
+    },
+    {
+      "name": "demo-svc",
+      "path": "container_in_container/demo"
+    }
+  ],
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "demo-svc: Run",
+        "type": "shell",
+        "command": "podman image exists demo-svc || podman build -t demo-svc ${workspaceFolder:claude-devpod}/container_in_container/demo && podman run --rm -p ${env:DEVPOD_DEMO_PORT}:8080 demo-svc",
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated"
+        }
+      },
+      {
+        "label": "demo-svc: Rebuild & Run",
+        "type": "shell",
+        "command": "podman build -t demo-svc ${workspaceFolder:claude-devpod}/container_in_container/demo && podman run --rm -p ${env:DEVPOD_DEMO_PORT}:8080 demo-svc",
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated"
+        }
+      }
+    ]
+  }
+}

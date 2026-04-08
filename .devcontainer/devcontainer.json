@@ -1,11 +1,17 @@
 {
   "name": "Claude DevPod (UBI9)",
+  "initializeCommand": "bash .devcontainer/scripts/init-env.sh",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": ".."
+    "context": "..",
+    "args": {
+      "BASE_IMAGE": "${localEnv:DEVPOD_BASE_IMAGE}"
+    }
   },
   "runArgs": [
-    "--privileged"
+    "--privileged",
+    "--env-file",
+    ".env"
   ],
   "mounts": [
     "source=${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached"
