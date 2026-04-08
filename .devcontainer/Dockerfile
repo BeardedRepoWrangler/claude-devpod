@@ -1,4 +1,5 @@
-FROM registry.access.redhat.com/ubi9/ubi:latest
+ARG BASE_IMAGE=registry.access.redhat.com/ubi9/ubi:9.4
+FROM ${BASE_IMAGE}
 
 # System packages
 RUN dnf install -y --allowerasing \
