@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>demo-svc</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #e2e8f0;
+      padding: 32px 24px;
+    }
+
+    .container { max-width: 720px; margin: 0 auto; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .header-title { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .header-title h1 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+    .header-path { color: #a8b2d8; font-size: 11px; font-family: monospace; }
+
+    .status-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 500; transition: all .3s;
+    }
+    .status-pill.running {
+      background: rgba(52,211,153,.1);
+      border: 1px solid rgba(52,211,153,.25);
+      color: #34d399;
+    }
+    .status-pill.reconnecting {
+      background: rgba(251,191,36,.1);
+      border: 1px solid rgba(251,191,36,.25);
+      color: #fbbf24;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+
+    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+    .panel { background: rgba(255,255,255,.04); border-radius: 8px; padding: 14px; }
+    .panel.accent { border: 1px solid rgba(233,69,96,.25); }
+    .panel.muted  { border: 1px solid rgba(168,178,216,.15); }
+
+    .panel-label { font-size: 9px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; margin-bottom: 10px; }
+    .panel.accent .panel-label { color: #e94560; }
+    .panel.muted  .panel-label { color: #a8b2d8; }
+
+    .panel-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+    .panel-row:last-child { margin-bottom: 0; }
+    .panel-key { color: #a8b2d8; font-size: 11px; }
+
+    .badge {
+      background: rgba(233,69,96,.15); border: 1px solid rgba(233,69,96,.3);
+      color: #e94560; font-size: 10px; font-family: monospace; padding: 2px 7px; border-radius: 4px;
+    }
+    .plain-val  { color: #e2e8f0; font-size: 10px; font-family: monospace; }
+    .muted-val  { color: #a8b2d8; font-size: 10px; font-family: monospace; }
+
+    .bottom-row { display: grid; grid-template-columns: auto 1fr; gap: 10px; margin-bottom: 10px; }
+
+    .uptime-box {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(168,178,216,.15);
+      border-radius: 8px; padding: 12px 18px;
+      display: flex; align-items: center; gap: 12px; white-space: nowrap;
+    }
+    .uptime-label { color: #a8b2d8; font-size: 11px; }
+    .uptime-value { color: #34d399; font-size: 14px; font-weight: 700; font-family: monospace; }
+
+    .breadcrumb {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(168,178,216,.15);
+      border-radius: 8px; padding: 12px 14px;
+      display: flex; align-items: center; gap: 6px; font-size: 10px; overflow: hidden;
+    }
+    .crumb       { color: #a8b2d8; white-space: nowrap; }
+    .crumb-sep   { color: rgba(168,178,216,.3); }
+    .crumb-acc   { color: #e94560; }
+    .crumb-active{ color: #34d399; font-weight: 600; white-space: nowrap; }
+
+    .log-panel {
+      background: rgba(0,0,0,.25); border: 1px solid rgba(168,178,216,.1);
+      border-radius: 8px; padding: 14px;
+    }
+    .log-label { color: #a8b2d8; font-size: 9px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; margin-bottom: 10px; }
+    .log-entry { display: flex; gap: 10px; align-items: center; font-family: monospace; font-size: 10px; margin-bottom: 5px; }
+    .log-entry:last-child { margin-bottom: 0; }
+    .log-method   { color: #34d399; width: 32px; flex-shrink: 0; }
+    .log-path     { color: #e2e8f0; flex: 1; }
+    .log-status   { color: #34d399; }
+    .log-duration { color: #4a5568; }
+    .log-empty    { color: #4a5568; font-size: 11px; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div>
+        <div class="header-title">
+          <span>&#x1F433;</span>
+          <h1>demo-svc</h1>
+        </div>
+        <div class="header-path">container_in_container/demo &middot; Python web service</div>
+      </div>
+      <div id="status-pill" class="status-pill running">
+        <div class="status-dot"></div>
+        <span id="status-text">Running</span>
+      </div>
+    </div>
+
+    <div class="panels">
+      <div class="panel accent">
+        <div class="panel-label">Runtime</div>
+        <div class="panel-row"><span class="panel-key">Python</span><span class="badge"     id="python-version">&mdash;</span></div>
+        <div class="panel-row"><span class="panel-key">Flask</span> <span class="badge"     id="flask-version">&mdash;</span></div>
+        <div class="panel-row"><span class="panel-key">Listening</span><span class="muted-val" id="listening">&mdash;</span></div>
+      </div>
+      <div class="panel muted">
+        <div class="panel-label">Host</div>
+        <div class="panel-row"><span class="panel-key">Hostname</span><span class="plain-val" id="hostname">&mdash;</span></div>
+        <div class="panel-row"><span class="panel-key">OS</span>      <span class="plain-val" id="os">&mdash;</span></div>
+        <div class="panel-row"><span class="panel-key">Podman</span>  <span class="plain-val" id="podman-version">&mdash;</span></div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="uptime-box">
+        <span class="uptime-label">Uptime</span>
+        <span class="uptime-value" id="uptime">&mdash;</span>
+      </div>
+      <div class="breadcrumb">
+        <span class="crumb-acc">&#x2B21;</span><span class="crumb">devcontainer</span>
+        <span class="crumb-sep">&rsaquo;</span>
+        <span class="crumb-acc">&#x2B21;</span><span class="crumb">podman run</span>
+        <span class="crumb-sep">&rsaquo;</span>
+        <span class="crumb-acc" style="color:#34d399">&#x2B21;</span><span class="crumb-active">demo-svc</span>
+      </div>
+    </div>
+
+    <div class="log-panel">
+      <div class="log-label">Recent Requests</div>
+      <div id="request-log"><span class="log-empty">No requests yet</span></div>
+    </div>
+
+  </div>
+  <script>
+    function formatUptime(s) {
+      var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+      if (h > 0) return h + 'h ' + m + 'm ' + sec + 's';
+      if (m > 0) return m + 'm ' + sec + 's';
+      return sec + 's';
+    }
+
+    function setStatus(ok) {
+      var pill = document.getElementById('status-pill');
+      pill.className = 'status-pill ' + (ok ? 'running' : 'reconnecting');
+      document.getElementById('status-text').textContent = ok ? 'Running' : 'Reconnecting\u2026';
+    }
+
+    function setText(id, val) { document.getElementById(id).textContent = val || '\u2014'; }
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderLog(reqs) {
+      var el = document.getElementById('request-log');
+      if (!reqs || reqs.length === 0) {
+        el.innerHTML = '<span class="log-empty">No requests yet</span>';
+        return;
+      }
+      el.innerHTML = reqs.map(function(r) {
+        return '<div class="log-entry">' +
+          '<span class="log-method">'   + esc(r.method)      + '</span>' +
+          '<span class="log-path">'     + esc(r.path)        + '</span>' +
+          '<span class="log-status">'   + esc(r.status)      + '</span>' +
+          '<span class="log-duration">' + esc(r.duration_ms) + 'ms</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    function fetchStatus() {
+      fetch('/api/status')
+        .then(function(res) {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(function(d) {
+          setStatus(true);
+          setText('python-version', d.python_version);
+          setText('flask-version',  d.flask_version);
+          setText('listening',      '0.0.0.0:' + d.port);
+          setText('hostname',       d.hostname);
+          setText('os',             d.os);
+          setText('podman-version', d.podman_version);
+          setText('uptime',         formatUptime(d.uptime_seconds));
+          renderLog(d.recent_requests);
+        })
+        .catch(function(e) { console.error('fetchStatus failed:', e); setStatus(false); });
+    }
+
+    fetchStatus();
+    var poller = setInterval(fetchStatus, 2000);
+  </script>
+</body>
+</html>

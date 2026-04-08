@@ -1,0 +1,9 @@
+tests/
+.venv/
+requirements-dev.txt
+README.md
+.gitignore
+conftest.py
+__pycache__/
+*.pyc
+.pytest_cache/
