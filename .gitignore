@@ -27,6 +27,9 @@ container_in_container/
 # Git worktrees
 .worktrees/
 
+# Visual brainstorming session files
+.superpowers/
+
 # OS / editor noise
 .DS_Store
 Thumbs.db
