@@ -1,6 +1,6 @@
 {
   "name": "Claude DevPod (UBI9)",
-  "initializeCommand": ".devcontainer/scripts/init-env.sh",
+  "initializeCommand": "bash .devcontainer/scripts/init-env.sh",
   "build": {
     "dockerfile": "Dockerfile",
     "context": "..",
